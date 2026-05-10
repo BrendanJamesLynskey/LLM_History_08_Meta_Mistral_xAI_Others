@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM History 08 &mdash; Meta, Mistral, xAI &amp; Others</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a; --bg-card: #0d1117; --bg-code: #161b22;
+            --text-primary: #e6edf3; --text-secondary: #8b949e;
+            --accent: #A371F7; --accent-dim: #A371F744; --accent-glow: #A371F733;
+            --accent-2: #FF7B72; --accent-3: #F0A726; --accent-4: #3FB950;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); font-size: 17px; line-height: 1.7; overflow-x: hidden; }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem; text-align: center; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 700px; height: 600px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+        .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 1rem; }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 640px; margin-bottom: 2rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.5rem; }
+        .tag { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); background: var(--accent-dim); white-space: nowrap; }
+        .tag.r { border-color: var(--accent-2); color: var(--accent-2); background: rgba(255,123,114,0.10); }
+        .tag.y { border-color: var(--accent-3); color: var(--accent-3); background: rgba(240,167,38,0.10); }
+        .tag.g { border-color: var(--accent-4); color: var(--accent-4); background: rgba(63,185,80,0.10); }
+        .pipeline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; margin-bottom: 1rem; max-width: var(--max-width); }
+        .pipeline-step { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.3rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary); white-space: nowrap; }
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+        .slide { min-height: 100vh; max-width: var(--max-width); margin: 0 auto; padding: 4rem 1.5rem; position: relative; display: flex; flex-direction: column; justify-content: center; }
+        .slide-number { font-family: var(--font-display); font-size: 5rem; font-weight: 700; color: var(--accent-dim); position: absolute; top: 2rem; right: 1.5rem; line-height: 1; user-select: none; }
+        .slide h2 { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; color: var(--accent); margin-bottom: 1.5rem; line-height: 1.25; }
+        .slide h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: var(--text-primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+        .slide ul, .slide ol { margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-secondary); }
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+        .slide code { font-family: var(--font-mono); font-size: 0.88em; background: var(--bg-code); padding: 0.1rem 0.35rem; border-radius: 3px; color: var(--accent); }
+        .table-wrap { overflow-x: auto; margin: 1.25rem 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background: var(--bg-code); color: var(--accent); font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-family: var(--font-display); white-space: nowrap; }
+        td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        .diagram-grid { display: grid; gap: 0.75rem; margin: 1.5rem 0; padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .diagram-panel { padding: 1rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 6px; }
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel.r { border-left: 3px solid var(--accent-2); }
+        .diagram-panel.y { border-left: 3px solid var(--accent-3); }
+        .diagram-panel.g { border-left: 3px solid var(--accent-4); }
+        .diagram-panel h4 { font-family: var(--font-display); font-size: 1rem; color: var(--accent); margin-bottom: 0.5rem; }
+        .diagram-panel.r h4 { color: var(--accent-2); }
+        .diagram-panel.y h4 { color: var(--accent-3); }
+        .diagram-panel.g h4 { color: var(--accent-4); }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.9rem; }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.25rem 0; }
+        .callout p { margin-bottom: 0; }
+        .callout .callout-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+        .callout.r { border-left-color: var(--accent-2); } .callout.r .callout-label { color: var(--accent-2); }
+        .callout.y { border-left-color: var(--accent-3); } .callout.y .callout-label { color: var(--accent-3); }
+        .callout.g { border-left-color: var(--accent-4); } .callout.g .callout-label { color: var(--accent-4); }
+        .quote { font-family: var(--font-display); font-size: 1.15rem; font-style: italic; color: var(--text-primary); padding: 1rem 1.5rem; border-left: 3px solid var(--accent); background: var(--bg-card); margin: 1.25rem 0; border-radius: 0 8px 8px 0; }
+        .quote .attr { display: block; margin-top: 0.5rem; font-style: normal; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono); }
+        .contents-list { list-style: none; padding-left: 0; counter-reset: contents; }
+        .contents-list li { counter-increment: contents; padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+        .contents-list li:last-child { border-bottom: none; }
+        .contents-list li::before { content: counter(contents, decimal-leading-zero); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); min-width: 2rem; }
+        .contents-list a { color: var(--text-primary); text-decoration: none; }
+        .contents-list a:hover { color: var(--accent); }
+        .footer { text-align: center; padding: 3rem 1.5rem; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border); max-width: var(--max-width); margin: 0 auto; }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .person-card { display: grid; grid-template-columns: 90px 1fr; gap: 1rem; padding: 1rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.6rem; }
+        .person-photo { width: 90px; height: 90px; border-radius: 50%; background: var(--accent-dim); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; color: var(--accent); }
+        .person-card h4 { font-family: var(--font-display); margin-bottom: 0.2rem; color: var(--text-primary); }
+        .person-card .role { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+        .person-card p { font-size: 0.88rem; margin: 0; }
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+            .person-card { grid-template-columns: 60px 1fr; }
+            .person-photo { width: 60px; height: 60px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="hero">
+    <div class="series-label">LLM History Series &mdash; Presentation 08</div>
+    <h1>Meta, Mistral, xAI &amp; <span class="accent">The Other Frontier Labs</span></h1>
+    <p class="subtitle">The diverse second tier &mdash; labs that are not OpenAI/Anthropic/Google DeepMind but are nonetheless on or near the frontier. Meta's open-weight bet, Mistral's European answer, Musk's xAI, Cohere's enterprise focus, Inflection's reverse-acqui-hire by Microsoft, and the smaller labs (Adept, Magic, Reka, Pi).</p>
+
+    <div class="tags">
+        <span class="tag y">Meta</span><span class="tag y">Mistral</span><span class="tag r">xAI</span>
+        <span class="tag g">Cohere</span><span class="tag g">Inflection</span><span class="tag">Llama</span>
+        <span class="tag">Adept</span><span class="tag">Magic</span>
+    </div>
+
+    <div class="pipeline">
+        <span class="pipeline-step">FAIR (2013)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Llama 1 (Feb 2023)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Mistral (May 2023)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">xAI (Jul 2023)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Inflection&rarr;MS (Mar 2024)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">multipolar 2026</span>
+    </div>
+</header>
+
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>What This Deck Covers</h2>
+    <p>Frontier-adjacent labs that are not OpenAI, Anthropic or Google DeepMind. The Chinese frontier labs are big enough to deserve their own deck (09). What is here: Meta AI/FAIR, Mistral, xAI, Cohere, Inflection-now-Microsoft AI, Adept, Magic, Reka, Pi/Physical Intelligence and the open-weight ecosystem orbiting them.</p>
+    <ul class="contents-list">
+        <li><a href="#slide-01">The Second Tier &mdash; Why It Exists</a></li>
+        <li><a href="#slide-02">Meta AI / FAIR &mdash; The Open-Weight Bet</a></li>
+        <li><a href="#slide-03">The Llama Line (1 &rarr; 4)</a></li>
+        <li><a href="#slide-04">Mistral &mdash; Paris, Mensch &amp; Lample</a></li>
+        <li><a href="#slide-05">xAI &mdash; Musk's Frontier Lab</a></li>
+        <li><a href="#slide-06">Cohere &mdash; Toronto, Aidan Gomez</a></li>
+        <li><a href="#slide-07">Inflection / Microsoft AI &mdash; Suleyman's Path</a></li>
+        <li><a href="#slide-08">Adept, Magic, Reka, Pi/Physical Intelligence</a></li>
+        <li><a href="#slide-09">The Open-Weight Ecosystem (Hugging Face etc.)</a></li>
+        <li><a href="#slide-10">Why the Second Tier Looks Like It Does</a></li>
+        <li><a href="#slide-11">The Geographic Distribution</a></li>
+        <li><a href="#slide-12">Cheat Sheet</a></li>
+    </ul>
+</section>
+
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>The Second Tier &mdash; Why It Exists</h2>
+    <p>Three labs sit cleanly at the frontier in 2026: OpenAI, Anthropic, Google DeepMind. The labs in this deck are within striking distance, sometimes ahead on specific axes, and collectively shape the field as much as the top three.</p>
+
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>What "second tier" means here</h4>
+            <p>Either competitive on capability for at least one model class, or running a meaningfully differentiated strategy &mdash; open weights, application focus, regional presence, single-product depth. Not a quality judgement.</p>
+        </div>
+        <div class="diagram-panel y">
+            <h4>What they have in common</h4>
+            <ul>
+                <li>Hundreds-to-thousands of researchers.</li>
+                <li>Frontier-class compute (often via cloud partnerships).</li>
+                <li>Senior staff with prior experience at top-three labs.</li>
+                <li>Visible product or research output annually.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel g">
+            <h4>How they differ</h4>
+            <ul>
+                <li>Open weights vs closed.</li>
+                <li>Consumer chat vs enterprise vs platform.</li>
+                <li>Generalist vs specialist (robotics, code, math).</li>
+                <li>Independent vs subsidiary (Meta AI is part of Meta; Microsoft AI is part of Microsoft).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Why this tier matters strategically</div>
+        <p>The second tier sets the floor on capability, the ceiling on prices, and most of the accessibility of the technology. Llama is what every undergraduate fine-tunes; Mistral is what every European bank tries first; Grok puts a frontier model in the hands of 200 M+ X users; Cohere is in many enterprise stacks where the top three's terms are not commercially acceptable. The second tier is also where the open-weights argument is settled in practice.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>Meta AI / FAIR &mdash; The Open-Weight Bet</h2>
+    <p>Meta's AI research has roots in the 2013 founding of <strong>FAIR (Facebook AI Research)</strong>, recruited and led by Yann LeCun. FAIR was an academic-style research arm: publish first, ship later. Through the late 2010s it was the largest non-Google industrial NLP lab in the world.</p>
+
+    <p>The strategic shift came in 2022&ndash;2023 when Meta consolidated its applied AI work and started shipping at frontier scale. The decisive choice was to <strong>release model weights openly</strong>, against the prevailing industry direction.</p>
+
+    <div class="person-card">
+        <div class="person-photo">YL</div>
+        <div>
+            <h4>Yann LeCun &mdash; Chief AI Scientist, Meta</h4>
+            <div class="role">FAIR founding director (2013); Chief AI Scientist since 2018</div>
+            <p>French. Bell Labs &rarr; NYU &rarr; Meta. Public face of Meta's open-weight stance and the field's most visible critic of pure-LLM AGI roadmaps. Posts daily on social media; gets into substantive arguments with Hinton, Bengio, Marcus, and various Anthropic/OpenAI staff. Internally, less involved in day-to-day Llama work since around 2024 &mdash; that is run by Meta AI's GenAI organisation under Ahmad Al-Dahle and Aparna Ramani &mdash; but he is the strategic and external voice.</p>
+        </div>
+    </div>
+
+    <div class="person-card">
+        <div class="person-photo">MZ</div>
+        <div>
+            <h4>Mark Zuckerberg &mdash; CEO, Meta</h4>
+            <div class="role">Personally responsible for the open-weight strategy</div>
+            <p>The open-weight Llama strategy is widely understood inside Meta to be Zuckerberg's call rather than LeCun's, although the two are aligned on it. Multiple interviews and shareholder letters have laid out the rationale: Meta is not the first-mover in any cloud or model-API business, so the long-run economics favour commoditising the model layer rather than competing with OpenAI on it. Open weights also give Meta strategic insurance against being locked out of access to a critical input.</p>
+        </div>
+    </div>
+
+    <div class="callout y">
+        <div class="callout-label">The internal politics</div>
+        <p>The open-weight strategy is not without internal critics; safety-focused staff, both inside Meta and elsewhere, have argued that releasing frontier weights gives capability access to bad actors that cannot be retracted. The Meta position is that the marginal uplift is small (you can already approximate the same capability via API access) and the public benefits of accessibility are large. The argument is not settled.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>The Llama Line (1 &rarr; 4)</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Date</th><th>Model</th><th>Status</th><th>What it added</th></tr></thead>
+        <tbody>
+            <tr><td>Feb 2023</td><td>Llama 1 (7B / 13B / 33B / 65B)</td><td>Research-licence-only</td><td>Strong base model. Weights leaked in March 2023, kicking off the open-weight era de facto.</td></tr>
+            <tr><td>Jul 2023</td><td>Llama 2 (7B / 13B / 70B)</td><td>Commercial licence</td><td>First openly commercial-usable frontier-quality model. Tens of thousands of fine-tunes within months.</td></tr>
+            <tr><td>Apr 2024</td><td>Llama 3 (8B / 70B)</td><td>Commercial licence</td><td>GPT-3.5-class for free-to-deploy. 405B variant later in 2024 closed the gap to GPT-4.</td></tr>
+            <tr><td>2025</td><td>Llama 4</td><td>Commercial licence</td><td>Mixture-of-Experts, multimodal, multi-trillion parameters at MoE total. Frontier-competitive on many benchmarks.</td></tr>
+        </tbody>
+    </table>
+    </div>
+
+    <h3>Why the Llama strategy worked</h3>
+    <p>Three things compounded:</p>
+    <ul>
+        <li><strong>Hugging Face ecosystem.</strong> The community had been waiting for a serious open base model. Llama landed and the entire fine-tuning, quantisation and inference-serving stack (vLLM, llama.cpp, Ollama, TGI) optimised for it within months.</li>
+        <li><strong>Cloud distribution.</strong> AWS Bedrock, Azure, GCP, Together, Fireworks, Groq all rapidly hosted Llama-derived endpoints. Meta gave up first-mover serving but kept the cap-table at zero.</li>
+        <li><strong>Enterprise on-prem.</strong> Many enterprises &mdash; banks, governments, healthcare &mdash; cannot legally use OpenAI APIs but can deploy Llama internally. The on-prem demand was substantial and almost all of it landed on Llama.</li>
+    </ul>
+
+    <div class="callout g">
+        <div class="callout-label">The 2023 leak that may have decided the era</div>
+        <p>Llama 1 was originally released only to academic researchers. Within a week of release the weights had leaked to a torrent. Meta did not pursue the leakers; instead Llama 2 was released under a commercial licence five months later, ratifying the de facto situation. Whether Meta would have moved to a commercial open licence without the leak is unknowable; the practical effect is that a serious frontier-quality model entered the public domain in 2023, which would not have happened otherwise.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>Mistral &mdash; Paris, Mensch &amp; Lample</h2>
+    <p>Mistral AI was incorporated in Paris in April 2023 and announced publicly in May 2023. The founders were three researchers who had left major labs within months of each other:</p>
+
+    <div class="person-card">
+        <div class="person-photo">AM</div>
+        <div>
+            <h4>Arthur Mensch &mdash; CEO &amp; co-founder</h4>
+            <div class="role">&Eacute;cole Polytechnique &rarr; INRIA PhD &rarr; DeepMind &rarr; Mistral</div>
+            <p>French, &eacute;cole-trained. PhD with Ga&euml;l Varoquaux on dictionary learning at INRIA. Worked at DeepMind in London on Chinchilla and Flamingo before founding Mistral. Public face of the company.</p>
+        </div>
+    </div>
+
+    <div class="person-card">
+        <div class="person-photo">GL</div>
+        <div>
+            <h4>Guillaume Lample &mdash; co-founder &amp; Chief Scientist</h4>
+            <div class="role">CMU &rarr; FAIR Paris &rarr; Mistral</div>
+            <p>French. Did much of the FAIR-Paris work on Llama 1 along with Marie-Anne Lachaux and others. Centrally involved in Mistral's pretraining recipe.</p>
+        </div>
+    </div>
+
+    <div class="person-card">
+        <div class="person-photo">TL</div>
+        <div>
+            <h4>Timoth&eacute;e Lacroix &mdash; co-founder &amp; CTO</h4>
+            <div class="role">FAIR &rarr; Mistral</div>
+            <p>French. Worked on FAIR's Llama infrastructure. The infrastructure-and-training-stack lead.</p>
+        </div>
+    </div>
+
+    <h3>The Mistral product line</h3>
+    <ul>
+        <li><strong>Mistral 7B</strong> (Sep 2023) &mdash; first release. Apache 2.0. Beat Llama 2 13B on most benchmarks at half the parameters. Sliding-window attention.</li>
+        <li><strong>Mixtral 8x7B</strong> (Dec 2023) &mdash; first widely-deployed MoE open-weight model. Quality of much larger dense models at a fraction of the inference cost.</li>
+        <li><strong>Mistral Large / 2 / 3</strong> &mdash; closed-weight frontier-tier models (commercial), API-only.</li>
+        <li><strong>Codestral, Pixtral, Mistral Small, Magistral</strong> &mdash; specialised line through 2024&ndash;2025, mostly open-weight.</li>
+    </ul>
+
+    <div class="callout y">
+        <div class="callout-label">The European angle</div>
+        <p>Mistral has positioned explicitly as the European frontier alternative to US labs. It has secured significant investment from European strategic partners (NVIDIA, BPI France, Salesforce, Andreessen Horowitz, General Catalyst), as well as a quasi-strategic relationship with Microsoft Azure for hosting. The political/regulatory positioning matters: Mistral is read in Brussels as a European AI champion in a way that the US labs are not.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>xAI &mdash; Musk's Frontier Lab</h2>
+    <p>xAI was incorporated in March 2023 and announced publicly in July 2023, with Elon Musk as founder and a senior team drawn substantially from Google DeepMind, Microsoft Research, and OpenAI. The pitch was to build an alternative frontier lab unconstrained by what Musk has described as the political and operational compromises he sees in the existing top three.</p>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>The unusual structural advantages</h4>
+            <ul>
+                <li><strong>Distribution.</strong> Grok ships natively in X to a 200M+ user base.</li>
+                <li><strong>Compute.</strong> The Memphis "Colossus" cluster reached 100,000 H100s by late 2024 &mdash; one of the largest single training clusters in the world &mdash; built in roughly six months.</li>
+                <li><strong>Capital.</strong> Multiple multi-billion-dollar rounds, partly from Musk's personal balance sheet and other strategic investors.</li>
+                <li><strong>Talent.</strong> Senior researchers from DeepMind (notably Igor Babuschkin), Google (Zihang Dai), OpenAI, and Microsoft Research.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel y">
+            <h4>The product line</h4>
+            <ul>
+                <li><strong>Grok 1</strong> (Nov 2023) &mdash; first model.</li>
+                <li><strong>Grok 1.5 / 2</strong> (2024) &mdash; vision, image generation, beats Llama 3 on several benchmarks.</li>
+                <li><strong>Grok 3</strong> (Feb 2025) &mdash; competitive with GPT-4o on reasoning benchmarks; Deep Search and Big Brain modes.</li>
+                <li><strong>Grok 4</strong> (later 2025) &mdash; frontier-tier model on the o-series style reasoning benchmarks.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout y">
+        <div class="callout-label">The Memphis cluster as a strategic act</div>
+        <p>The speed at which Memphis was built &mdash; ~120 days from breaking ground to first useful training runs &mdash; is unusual in the cluster-construction literature. Musk's pattern at Tesla and SpaceX of compressing facility-build timelines was visibly applied to AI infrastructure. By 2025, Colossus had grown to over 200,000 GPUs, one of the largest training clusters anywhere. Whether xAI's algorithmic edge keeps pace with its infrastructural one is the open question.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>Cohere &mdash; Toronto, Aidan Gomez</h2>
+    <p>Cohere was founded in Toronto in 2019 by Aidan Gomez (the youngest transformer-paper author), Ivan Zhang and Nick Frosst. It is the closest thing to a serious frontier-aligned Canadian AI company, and one of the few enterprise-focused AI labs that is consistently profitable on a per-customer basis.</p>
+
+    <div class="person-card">
+        <div class="person-photo">AG</div>
+        <div>
+            <h4>Aidan Gomez &mdash; CEO &amp; co-founder</h4>
+            <div class="role">Toronto undergraduate &rarr; Google Brain intern (2017) &rarr; Oxford DPhil &rarr; Cohere</div>
+            <p>Already covered in deck 03 as the youngest transformer-paper author. Founded Cohere as a 22-year-old between his Brain internship and his Oxford DPhil. The lab's strategic emphasis on enterprise and on retrieval-augmented generation (the central use case for most enterprise NLP) is consistent with Gomez's framing.</p>
+        </div>
+    </div>
+
+    <h3>What Cohere does</h3>
+    <ul>
+        <li><strong>Command</strong> &mdash; flagship instruction-tuned LLMs, enterprise-deployment-friendly.</li>
+        <li><strong>Embed</strong> &mdash; one of the most-used embedding APIs in enterprise NLP.</li>
+        <li><strong>Rerank</strong> &mdash; rerankers for search and RAG systems; small models with broad commercial adoption.</li>
+        <li><strong>Aya</strong> &mdash; multilingual open-weight model line, especially strong on under-served languages.</li>
+        <li><strong>North</strong> &mdash; on-prem enterprise platform.</li>
+    </ul>
+
+    <div class="callout">
+        <div class="callout-label">The strategic positioning</div>
+        <p>Cohere is the western frontier-adjacent lab that is most commercially boring and most commercially solid. It does not aim for consumer chat market share or for headline frontier benchmarks; it aims for enterprise contracts where the customer wants on-prem deployment, multilingual support, retrieval-augmented patterns and a vendor that is not OpenAI/Microsoft/Google/Anthropic for whatever reasons (sovereignty, competitive concerns, regulation). It is profitable, growing, and underwritten by a senior team with deep research credentials. Outside the headline frontier-benchmarks game it occupies a lane that almost no other lab does.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-07">
+    <div class="slide-number">07</div>
+    <h2>Inflection / Microsoft AI &mdash; Suleyman's Path</h2>
+    <p>Inflection AI was founded in 2022 by <strong>Mustafa Suleyman</strong> (DeepMind co-founder, see deck 07), <strong>Reid Hoffman</strong> (LinkedIn co-founder, partner at Greylock) and <strong>Karen Simonyan</strong> (DeepMind senior researcher, VGGNet co-author). It raised about $1.5 B in 2023 led by NVIDIA, Microsoft, Bill Gates personally, and Eric Schmidt.</p>
+
+    <p>The company's product was <strong>Pi</strong>, a consumer-chat assistant designed for warmth and emotional support rather than for productivity. Pi launched in May 2023, attracted a small but dedicated audience, and was widely respected for its product polish without ever getting close to ChatGPT scale.</p>
+
+    <h3>The March 2024 reverse acqui-hire</h3>
+    <p>On 19 March 2024 Microsoft announced that Suleyman, Simonyan, and most of Inflection's senior staff would join Microsoft AI as the new leadership of Copilot and consumer AI. Microsoft paid Inflection ~$650 M for a non-exclusive licence to Inflection's IP &mdash; a structure that legally avoided being an acquisition (and the antitrust review one would have triggered) while economically being one. Inflection itself continues to exist as a smaller B2B-focused entity.</p>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel y">
+            <h4>What Microsoft got</h4>
+            <ul>
+                <li>An experienced consumer-AI leader (Suleyman).</li>
+                <li>A senior research team that had been operating in OpenAI's shadow.</li>
+                <li>An organisational alternative to depending entirely on OpenAI for AI strategy.</li>
+                <li>Diversification of Microsoft's frontier-research bets.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>What Suleyman got</h4>
+            <ul>
+                <li>The CEO role of one of the largest consumer AI organisations on earth.</li>
+                <li>Compute access at Microsoft scale.</li>
+                <li>A clean exit from a consumer product that was struggling against ChatGPT.</li>
+                <li>Direct competition with his old DeepMind colleagues across the bay.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout y">
+        <div class="callout-label">The reverse acqui-hire as a pattern</div>
+        <p>Microsoft+Inflection (March 2024), Google+Character (August 2024) and Amazon+Adept (June 2024) all followed the same template: pay a hefty IP-licensing fee, hire most of the founders and senior staff, leave the company shell behind. The structure threads a needle on antitrust review while economically being acquisitions. By 2025 it has clearly become the dominant consolidation pattern for second-tier AI start-ups.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-08">
+    <div class="slide-number">08</div>
+    <h2>Adept, Magic, Reka, Pi/Physical Intelligence</h2>
+    <p>The smaller specialist labs deserve mention because some of them ship products that look unlike anything from the top three.</p>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Adept</h4>
+            <p>Founded 2022 by Niki Parmar, Ashish Vaswani and David Luan (ex-Google Brain). Built ACT-1, an early action-model agent for browser use. Vaswani and Parmar left in 2023 to found Essential AI; the residual Adept team and IP were licensed to Amazon in June 2024 in another reverse acqui-hire.</p>
+        </div>
+        <div class="diagram-panel y">
+            <h4>Magic</h4>
+            <p>Founded 2022 in San Francisco. Specialises in long-context-window models for software-engineering use. Ran a publicised 100M-token context model in 2024. Smaller than the named frontier labs but with an unusually high-quality cap table (Eric Schmidt, Nat Friedman, Daniel Gross).</p>
+        </div>
+        <div class="diagram-panel g">
+            <h4>Reka</h4>
+            <p>Founded 2023 by Yi Tay, Dani Yogatama, Chen Liang &mdash; ex-DeepMind multimodal researchers. UK / Singapore / Bay Area distributed. Reka Flash and Reka Core launched in 2024, competitive on multimodal benchmarks. The most internationally distributed of the second-tier labs.</p>
+        </div>
+        <div class="diagram-panel r">
+            <h4>Pi / Physical Intelligence</h4>
+            <p>Founded 2024. Robotics-foundation-models lab spun out of UC Berkeley + Google. Sergey Levine, Karol Hausman and Chelsea Finn central. Raised >$400 M Series A; the most-watched robotics-LLM lab.</p>
+        </div>
+    </div>
+
+    <h3>Other notable specialist labs</h3>
+    <ul>
+        <li><strong>Together AI</strong> (founded 2022; runs the leading independent inference cloud and several open-weight models including the RedPajama line).</li>
+        <li><strong>Sakana AI</strong> (founded 2023, Tokyo; Llion Jones and David Ha; biological-inspired research direction).</li>
+        <li><strong>Essential AI</strong> (Vaswani, Parmar; 2023; smaller, less public than its founders' names suggest).</li>
+        <li><strong>Thinking Machines Lab</strong> (Mira Murati's post-OpenAI lab, 2024; very early stage but high-profile).</li>
+        <li><strong>Safe Superintelligence Inc</strong> (Sutskever, 2024; mission-focused; explicitly not shipping intermediate products).</li>
+        <li><strong>Anysphere</strong> (Cursor; the most successful AI-IDE start-up on top of frontier models).</li>
+    </ul>
+</section>
+
+<section class="slide" id="slide-09">
+    <div class="slide-number">09</div>
+    <h2>The Open-Weight Ecosystem</h2>
+    <p>Around the open-weight frontier labs is an ecosystem of infrastructure and tooling companies that is structurally important. <strong>Hugging Face</strong> is its centre.</p>
+
+    <div class="person-card">
+        <div class="person-photo">CD</div>
+        <div>
+            <h4>Cl&eacute;ment Delangue, Julien Chaumond, Thomas Wolf &mdash; Hugging Face co-founders</h4>
+            <div class="role">Founded 2016 in Paris/NYC; pivoted from chatbot company to NLP infrastructure 2018</div>
+            <p>French. Originally a teen-chatbot startup. The 2018 pivot to publishing the <code>transformers</code> library &mdash; a common interface for BERT, GPT-2, and the other models that arrived around then &mdash; turned out to be the single most-used library in NLP. Hugging Face today hosts hundreds of thousands of models, datasets, and Spaces; it is what a model-zoo looks like at scale.</p>
+        </div>
+    </div>
+
+    <h3>Other key ecosystem players</h3>
+    <ul>
+        <li><strong>Together AI</strong> &mdash; inference-serving cloud; OpenChatKit, RedPajama, fine-tuning. Christopher R&eacute; co-founder.</li>
+        <li><strong>Replicate</strong> &mdash; model-deployment-as-a-service.</li>
+        <li><strong>Modal, Runpod, Lambda, Crusoe</strong> &mdash; GPU-cloud providers.</li>
+        <li><strong>Ollama, llama.cpp, vLLM, SGLang, TGI</strong> &mdash; the inference-stack libraries that made consumer-grade local model running practical.</li>
+        <li><strong>EleutherAI</strong> &mdash; community research collective; GPT-NeoX, Pythia, the suite of openly-replicable model scaling studies.</li>
+        <li><strong>MosaicML</strong> &mdash; training-platform company; acquired by Databricks 2023 (~$1.3 B).</li>
+        <li><strong>Stability AI</strong> &mdash; Stable Diffusion line; foundational for the open-weight image generation ecosystem.</li>
+    </ul>
+
+    <div class="callout">
+        <div class="callout-label">Why this matters strategically</div>
+        <p>Open-weight models without an ecosystem to host, fine-tune and serve them are just files. The Llama-Mistral-DeepSeek frontier of openly-available models is matched by the Hugging Face-Together-Ollama-vLLM frontier of openly-available infrastructure. The two layers reinforce each other. The closed-weight frontier (OpenAI/Anthropic/Google) does not have a comparable third-party ecosystem because the models themselves are proprietary; what it has instead is a cloud-marketplace pattern (Bedrock, Vertex, Azure) where the ecosystem is the cloud's.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-10">
+    <div class="slide-number">10</div>
+    <h2>Why the Second Tier Looks Like It Does</h2>
+    <p>Pulling the deck together: the second tier is shaped by three structural facts.</p>
+
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>1. The top-three economics are durable</h4>
+            <p>Frontier-quality general models cost $50&ndash;500 M per training run plus alignment and deployment costs. Only labs with cloud-provider scale capital can play. Anyone outside the top three either differentiates (open weights, vertical, regional) or is acquired/licensed.</p>
+        </div>
+        <div class="diagram-panel y">
+            <h4>2. Differentiation actually works</h4>
+            <p>Llama's open-weight thesis, Cohere's enterprise-focus thesis, Mistral's European thesis, xAI's Twitter-distribution thesis &mdash; each has produced sustainable position. The market is large enough that several differentiated bets succeed simultaneously.</p>
+        </div>
+        <div class="diagram-panel g">
+            <h4>3. The acqui-hire pattern absorbs the rest</h4>
+            <p>Inflection &rarr; Microsoft. Adept &rarr; Amazon. Character &rarr; Google. The labs that were neither at the frontier nor sustainably differentiated have been absorbed into the cloud-provider sphere via the reverse-acqui-hire structure. The pattern is now so well-established that founders structure for it.</p>
+        </div>
+    </div>
+
+    <div class="callout y">
+        <div class="callout-label">A useful pattern</div>
+        <p>Most second-tier labs founded after 2022 are running one of four playbooks: <strong>(a) open-weight infrastructure</strong> (Mistral, Cohere's Aya, Together, EleutherAI); <strong>(b) vertical specialisation</strong> (Magic for code, Pi for robotics, Reka for multimodal); <strong>(c) regional-sovereignty</strong> (Mistral for Europe, Cohere for North-American sovereignty deployments, Aleph Alpha for Germany); or <strong>(d) personality-driven</strong> (xAI, Thinking Machines, SSI). The labs that don't fit any of these playbooks tend not to last as independent entities.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-11">
+    <div class="slide-number">11</div>
+    <h2>The Geographic Distribution</h2>
+    <p>The non-Chinese second tier maps roughly:</p>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Bay Area</h4>
+            <ul>
+                <li>Meta AI / FAIR (Menlo Park).</li>
+                <li>xAI (Palo Alto / SF).</li>
+                <li>Microsoft AI (Mountain View).</li>
+                <li>Adept (until 2024), Magic, Pi, Thinking Machines, SSI, Anysphere.</li>
+                <li>Together AI, Hugging Face SF, MosaicML legacy.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel y">
+            <h4>Europe</h4>
+            <ul>
+                <li>Mistral (Paris).</li>
+                <li>FAIR Paris.</li>
+                <li>Aleph Alpha (Heidelberg).</li>
+                <li>Stability AI (London).</li>
+                <li>Hugging Face (Paris/NYC).</li>
+                <li>Reka (UK / Singapore distributed).</li>
+            </ul>
+        </div>
+        <div class="diagram-panel g">
+            <h4>Canada</h4>
+            <ul>
+                <li>Cohere (Toronto).</li>
+                <li>Vector Institute (academic, but ecosystem).</li>
+            </ul>
+        </div>
+        <div class="diagram-panel r">
+            <h4>Asia (ex-China; China is deck 09)</h4>
+            <ul>
+                <li>Sakana AI (Tokyo).</li>
+                <li>Reka (Singapore).</li>
+                <li>Naver / Kakao (Korea, smaller frontier).</li>
+                <li>Preferred Networks (Tokyo).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">A persistent feature</div>
+        <p>The Bay Area still dominates frontier-adjacent activity by a large margin, but Europe is closer than it has been at any previous moment in computer science history. The combination of Mistral's success, the EU AI Act's effect on regulatory clarity, and the strategic interest of European governments in AI sovereignty has produced a meaningful European frontier-adjacent ecosystem. Whether that ecosystem catches up further or plateaus is one of the open questions of the next two years.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-12">
+    <div class="slide-number">12</div>
+    <h2>Cheat Sheet</h2>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Five labs to know</h4>
+            <ul>
+                <li><strong>Meta AI / FAIR</strong> &mdash; Llama, open-weight bet.</li>
+                <li><strong>Mistral</strong> &mdash; Paris, Mensch &amp; Lample.</li>
+                <li><strong>xAI</strong> &mdash; Musk, Memphis cluster, Grok.</li>
+                <li><strong>Cohere</strong> &mdash; Toronto, enterprise focus.</li>
+                <li><strong>Microsoft AI (ex-Inflection)</strong> &mdash; Suleyman.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel y">
+            <h4>Smaller / specialist</h4>
+            <ul>
+                <li>Adept, Magic, Reka, Pi/Physical Intelligence.</li>
+                <li>Sakana AI, Together AI, Essential AI.</li>
+                <li>Thinking Machines Lab, SSI.</li>
+                <li>Stability AI, Aleph Alpha.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel g">
+            <h4>The four playbooks</h4>
+            <ul>
+                <li>Open-weight infrastructure.</li>
+                <li>Vertical specialisation.</li>
+                <li>Regional sovereignty.</li>
+                <li>Personality-driven.</li>
+            </ul>
+        </div>
+        <div class="diagram-panel r">
+            <h4>What's next in the series</h4>
+            <ul>
+                <li>09 &mdash; Chinese frontier labs (DeepSeek, Qwen, etc.).</li>
+                <li>10 &mdash; Future directions.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>Part of the <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_LLM_History">LLM History series</a> in the <a href="https://github.com/BrendanJamesLynskey/LLMs">LLMs hub</a>.</p>
+    <p style="margin-top: 0.5rem;"><a href="https://brendanjameslynskey.github.io/LLM_History_07_DeepMind_and_Google/">&larr; 07 DeepMind</a> &middot; <a href="https://brendanjameslynskey.github.io/LLM_History_09_Chinese_Labs/">09 Chinese Labs &rarr;</a></p>
+</footer>
+
+</body>
+</html>
